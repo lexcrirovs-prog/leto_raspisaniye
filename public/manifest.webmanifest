@@ -1,0 +1,12 @@
+{
+  "name": "Летнее расписание 2026",
+  "short_name": "Лето 2026",
+  "start_url": "/raspcld/",
+  "scope": "/raspcld/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#3b82f6",
+  "icons": [
+    { "src": "apple-touch-icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}
