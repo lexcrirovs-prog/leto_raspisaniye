@@ -394,12 +394,36 @@ p {
   background: #ffffff;
 }
 
-.comment-box span {
-  display: block;
+.comment-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
   margin-bottom: 8px;
+}
+
+.comment-head label {
   color: #334155;
   font-size: 14px;
   font-weight: 800;
+}
+
+.voice-btn {
+  min-height: 44px;
+  min-width: 92px;
+  border: 1px solid var(--strong);
+  border-radius: var(--radius);
+  background: var(--strong);
+  color: #ffffff;
+  padding: 0 12px;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.voice-btn.listening {
+  background: #ffffff;
+  color: var(--strong);
+  box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.13);
 }
 
 .comment-box textarea {

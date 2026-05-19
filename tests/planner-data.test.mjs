@@ -21,6 +21,17 @@ function hasTitle(tasks, text) {
   return tasks.some((task) => task.title.includes(text));
 }
 
+function toMinutes(value) {
+  const [hours, minutes] = value.split(":").map(Number);
+  return hours * 60 + minutes;
+}
+
+function parseTimeRange(value) {
+  const match = value.match(/^(\d{2}:\d{2})-(\d{2}:\d{2})$/);
+  assert.ok(match, `expected fixed time range, got ${value}`);
+  return [toMinutes(match[1]), toMinutes(match[2])];
+}
+
 assert.equal(months.length, 3);
 assert.equal(days.length, 92);
 
@@ -31,6 +42,11 @@ for (const day of days) {
   assert.equal(tasks.filter((task) => task.category === "reading").length, 1, `${day.dateKey}: reading count`);
   assert.equal(categoryHours(tasks, "reading"), 1.5, `${day.dateKey}: reading hours`);
   assert.equal(categoryHours(tasks, "walk"), 4, `${day.dateKey}: walk hours`);
+  for (const walk of tasks.filter((task) => task.category === "walk")) {
+    const [start, end] = parseTimeRange(walk.time);
+    assert.ok(start >= toMinutes("11:00"), `${day.dateKey}: walk starts before 11:00`);
+    assert.ok(end <= toMinutes("21:30"), `${day.dateKey}: walk ends after 21:30`);
+  }
   assert.equal(categoryHours(tasks, "phone"), 2, `${day.dateKey}: phone hours`);
   assert.equal(tasks.filter((task) => task.category === "phone").length, 3, `${day.dateKey}: phone blocks`);
   assert.equal(Math.round((14 - day.scheduledHours) * 10) / 10, day.freeHours, `${day.dateKey}: free hours`);

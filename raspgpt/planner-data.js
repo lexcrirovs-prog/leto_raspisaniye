@@ -59,6 +59,14 @@ function task(dateKey, id, title, time, durationHours, category) {
 }
 
 function phoneTasks(dateKey, isMath, isCourse, isRowing) {
+  if (isMath && isCourse) {
+    return [
+      task(dateKey, "phone-1", "Залипание в телефон", "12:30-13:00", 0.5, "phone"),
+      task(dateKey, "phone-2", "Залипание в телефон", "21:30-22:00", 0.5, "phone"),
+      task(dateKey, "phone-3", "Залипание в телефон", "22:00-23:00", 1, "phone"),
+    ];
+  }
+
   const eveningPhone = (isMath && isCourse) || isRowing ? "22:00-23:00" : "20:30-21:30";
   return [
     task(dateKey, "phone-1", "Залипание в телефон", "11:30-12:00", 0.5, "phone"),
@@ -104,17 +112,19 @@ function makeDay(date, month, monthLabel) {
   }
 
   if (isCourse && isMath) {
-    tasks.push(task(dateKey, "walk-1", "Прогулка", "12:00-13:00", 1, "walk"));
-    tasks.push(task(dateKey, "walk-2", "Прогулка", "16:00-16:30", 0.5, "walk"));
-    tasks.push(task(dateKey, "walk-3", "Прогулка", "20:00-22:00", 2, "walk"));
-    tasks.push(task(dateKey, "walk-flex", "Прогулка: добрать 30 минут", "удобное время", 0.5, "walk"));
+    tasks.push(task(dateKey, "walk-1", "Прогулка", "11:00-12:00", 1, "walk"));
+    tasks.push(task(dateKey, "walk-2", "Прогулка", "12:00-12:30", 0.5, "walk"));
+    tasks.push(task(dateKey, "walk-3", "Прогулка", "16:00-16:30", 0.5, "walk"));
+    tasks.push(task(dateKey, "walk-4", "Прогулка", "18:30-19:00", 0.5, "walk"));
+    tasks.push(task(dateKey, "walk-5", "Прогулка", "20:00-21:30", 1.5, "walk"));
   } else if (isMath) {
     tasks.push(task(dateKey, "walk-1", "Прогулка", "12:00-13:00", 1, "walk"));
     tasks.push(task(dateKey, "walk-2", "Прогулка", "14:00-16:30", 2.5, "walk"));
     tasks.push(task(dateKey, "walk-3", "Прогулка", "20:00-20:30", 0.5, "walk"));
   } else if (isRowing) {
     tasks.push(task(dateKey, "walk-1", "Прогулка", "14:00-16:00", 2, "walk"));
-    tasks.push(task(dateKey, "walk-2", "Прогулка", "20:00-22:00", 2, "walk"));
+    tasks.push(task(dateKey, "walk-2", "Прогулка", "18:30-19:00", 0.5, "walk"));
+    tasks.push(task(dateKey, "walk-3", "Прогулка", "20:00-21:30", 1.5, "walk"));
   } else {
     tasks.push(task(dateKey, "walk", "Прогулка", "14:00-18:00", 4, "walk"));
   }

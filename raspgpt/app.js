@@ -4,9 +4,12 @@ const storageKey = "summer-planner-2026-static-v1";
 const months = buildSummerPlanner();
 const allDays = months.flatMap((month) => month.days);
 const app = document.querySelector("#app");
+const SpeechRecognitionApi = window.SpeechRecognition || window.webkitSpeechRecognition;
 
 let activeMonth = "june";
 let state = loadState();
+let activeRecognition = null;
+let voiceDateKey = null;
 
 function loadState() {
   const fallback = { completed: {}, comments: {} };
@@ -52,6 +55,66 @@ function escapeHtml(value) {
     .replaceAll("<", "&lt;")
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;");
+}
+
+function appendComment(dateKey, text) {
+  const current = state.comments[dateKey]?.trim() ?? "";
+  state.comments[dateKey] = current ? `${current} ${text}` : text;
+  saveState();
+}
+
+function startVoiceComment(dateKey) {
+  if (!SpeechRecognitionApi) {
+    window.alert("Голосовой ввод недоступен в этом браузере");
+    return;
+  }
+
+  if (activeRecognition) {
+    activeRecognition.stop();
+  }
+
+  const recognition = new SpeechRecognitionApi();
+  recognition.lang = "ru-RU";
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 1;
+
+  recognition.onresult = (event) => {
+    const text = Array.from(event.results)
+      .slice(event.resultIndex)
+      .map((result) => result[0]?.transcript?.trim() ?? "")
+      .filter(Boolean)
+      .join(" ");
+
+    if (text) {
+      appendComment(dateKey, text);
+    }
+  };
+
+  recognition.onend = () => {
+    if (activeRecognition !== recognition) return;
+    activeRecognition = null;
+    voiceDateKey = null;
+    render();
+  };
+
+  recognition.onerror = () => {
+    if (activeRecognition !== recognition) return;
+    activeRecognition = null;
+    voiceDateKey = null;
+    render();
+  };
+
+  try {
+    activeRecognition = recognition;
+    voiceDateKey = dateKey;
+    render();
+    recognition.start();
+  } catch {
+    activeRecognition = null;
+    voiceDateKey = null;
+    render();
+    window.alert("Не получилось запустить голосовой ввод");
+  }
 }
 
 function render() {
@@ -154,10 +217,19 @@ function renderDay(day) {
           })
           .join("")}
       </div>
-      <label class="comment-box">
-        <span>Комментарий дня</span>
-        <textarea data-comment="${day.dateKey}" placeholder="Что получилось, что перенести, настроение...">${escapeHtml(state.comments[day.dateKey] ?? "")}</textarea>
-      </label>
+      <div class="comment-box">
+        <div class="comment-head">
+          <label for="comment-${day.dateKey}">Комментарий дня</label>
+          <button
+            type="button"
+            class="voice-btn ${voiceDateKey === day.dateKey ? "listening" : ""}"
+            data-action="voice-comment"
+            data-day="${day.dateKey}"
+            aria-label="Голосовой ввод комментария"
+          >${voiceDateKey === day.dateKey ? "Слушаю..." : "Голос"}</button>
+        </div>
+        <textarea id="comment-${day.dateKey}" data-comment="${day.dateKey}" placeholder="Что получилось, что перенести, настроение...">${escapeHtml(state.comments[day.dateKey] ?? "")}</textarea>
+      </div>
     </article>
   `;
 }
@@ -186,6 +258,11 @@ app.addEventListener("click", (event) => {
   }
 
   const dateKey = target.dataset.day;
+  if (action === "voice-comment" && dateKey) {
+    startVoiceComment(dateKey);
+    return;
+  }
+
   const day = dateKey ? getDay(dateKey) : null;
   if (!day) return;
 
